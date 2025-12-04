@@ -37,6 +37,9 @@
 #include <mbedtls/version.h>
 #elif USE_GCRYPT
 #include <gcrypt.h>
+#elif USE_BCRYPT
+#include <windows.h>
+#include <bcrypt.h>
 
 // version stored by gcry_check_version
 char const* gcrypt_version;
@@ -600,7 +603,7 @@ static void help() {
     printf("-A <IPv6>/<prefixlen>    | Set interface IPv6 address, only supported if IPv4 set to 'static'\n");
     printf("-c <community>           | n2n community name the edge belongs to.\n");
 		printf("-B <mode>                | Encryption: B0 = keyfile(-K), B1 = disable, B2 = twofish(-k), B3 = AES-CBC(-k)\n");
-		printf("                         : It can also be used as -B 3 (for better compatibility)\n");
+		printf("                         : '-B3' can also be used as '-B 3' (for better compatibility)\n");
     printf("-k <encrypt key>         | Encryption key (ASCII, max 32) - also N2N_KEY=<encrypt key>. Not with -K.\n");
     printf("-K <key file>            | Specify a key schedule file to load. Not with -k.\n");
     printf("-l <supernode host:port> | Supernode IP:port\n");
@@ -2352,7 +2355,9 @@ int main(int argc, char* argv[])
     n2n_edge_t eee; /* single instance for this program */
 
 #ifdef HAVE_LIBCAP
+#ifdef PR_CAP_AMBIENT
     prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0L, 0L, 0L);
+#endif
 
     caps_original = cap_get_proc();
     /* drop all capabilities, permit some for later */

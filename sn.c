@@ -16,6 +16,10 @@
 
 #define N2N_SN_MGMT_PORT                5645
 
+#ifndef _WIN32
+#include <poll.h>
+#endif
+
 struct sn_stats
 {
     size_t errors;              /* Number of errors encountered. */
@@ -438,6 +442,7 @@ static int process_mgmt( n2n_sn_t * sss,
  */
 static int process_udp( n2n_sn_t * sss,
                         const struct sockaddr * sender_sock,
+												socklen_t sender_sock_len,
                         const uint8_t * udp_buf,
                         size_t udp_size,
                         time_t now)
@@ -889,108 +894,80 @@ static int run_loop( n2n_sn_t * sss )
     {
         int rc;
         ssize_t bread;
-        int max_sock;
-        fd_set socket_mask;
-        struct timeval wait_time;
+        struct pollfd fds[3];
+        int nfds = 0;
         time_t now=0;
 
-        FD_ZERO(&socket_mask);
-        max_sock = max(max((int) sss->sock, (int) sss->sock6), (int) sss->mgmt_sock);
+        if (sss->sock != -1) {
+            fds[nfds].fd = sss->sock;
+            fds[nfds].events = POLLIN;
+            fds[nfds].revents = 0;
+            nfds++;
+        }
 
-        if (sss->sock != -1)
-            FD_SET(sss->sock, &socket_mask);
-        if (sss->sock6 != -1)
-            FD_SET(sss->sock6, &socket_mask);
-        FD_SET(sss->mgmt_sock, &socket_mask);
+        if (sss->sock6 != -1) {
+            fds[nfds].fd = sss->sock6;
+            fds[nfds].events = POLLIN;
+            fds[nfds].revents = 0;
+            nfds++;
+        }
 
-        wait_time.tv_sec = 10; wait_time.tv_usec = 0;
-        rc = select(max_sock+1, &socket_mask, NULL, NULL, &wait_time);
+        fds[nfds].fd = sss->mgmt_sock;
+        fds[nfds].events = POLLIN;
+        fds[nfds].revents = 0;
+        nfds++;
+
+        rc = poll(fds, nfds, 10000); /* 10-second timeout */
 
         now = time(NULL);
 
         if(rc > 0)
         {
-            struct sockaddr_storage  sender_sock;
-            socklen_t i;
-            i = sizeof(sender_sock);
+            int idx = 0;
 
-            if (FD_ISSET(sss->sock, &socket_mask))
-            {
-                bread = recvfrom( sss->sock, pktbuf, N2N_SN_PKTBUF_SIZE, 0/*flags*/,
-				  (struct sockaddr *)&sender_sock, (socklen_t*)&i);
+            if (sss->sock != -1) {
+                if (fds[idx].revents & POLLIN) {
+                    struct sockaddr_storage udp_sender_sock;
+                    socklen_t udp_sender_len = sizeof(udp_sender_sock);
 
-                if ( bread < 0 ) /* For UDP bread of zero just means no data (unlike TCP). */
-                {
-                    /* The fd is no good now. Maybe we lost our interface. */
-#ifdef _WIN32
-                    DWORD err = WSAGetLastError();
-                    W32_ERROR(err, error);
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%ls)", bread, err, error );
-                    W32_ERROR_FREE(error);
-#else
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%s)", bread, errno, strerror(errno) );
-#endif
-                    keep_running=0;
-                    break;
+                    bread = recvfrom(sss->sock, pktbuf, N2N_SN_PKTBUF_SIZE, 0,
+                                   (struct sockaddr *)&udp_sender_sock, &udp_sender_len);
+
+                    if (bread > 0) {
+												process_udp( sss, (struct sockaddr*) &udp_sender_sock, udp_sender_len,
+																			pktbuf, bread, now );
+                    }
                 }
-
-                /* We have a datagram to process */
-                if ( bread > 0 )
-                {
-                    /* And the datagram has data (not just a header) */
-                    process_udp( sss, (struct sockaddr*) &sender_sock, pktbuf, bread, now );
-                }
+                idx++;
             }
 
-            if (FD_ISSET(sss->sock6, &socket_mask))
-            {
-                bread = recvfrom( sss->sock6, pktbuf, N2N_SN_PKTBUF_SIZE, 0/*flags*/,
-				  (struct sockaddr*) &sender_sock, (socklen_t*) &i);
+            if (sss->sock6 != -1) {
+                if (fds[idx].revents & POLLIN) {
+                    struct sockaddr_storage udp6_sender_sock;
+                    socklen_t udp6_sender_len = sizeof(udp6_sender_sock);
 
-                if ( bread < 0 ) /* For UDP bread of zero just means no data (unlike TCP). */
-                {
-                    /* The fd is no good now. Maybe we lost our interface. */
-#ifdef _WIN32
-                    DWORD err = WSAGetLastError();
-                    W32_ERROR(err, error);
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%ls)", bread, err, error );
-                    W32_ERROR_FREE(error);
-#else
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%s)", bread, errno, strerror(errno) );
-#endif
-                    keep_running=0;
-                    break;
-                }
+                    bread = recvfrom(sss->sock6, pktbuf, N2N_SN_PKTBUF_SIZE, 0,
+                                   (struct sockaddr *)&udp6_sender_sock, &udp6_sender_len);
 
-                /* We have a datagram to process */
-                if ( bread > 0 )
-                {
-                    /* And the datagram has data (not just a header) */
-                    process_udp( sss, (struct sockaddr*) &sender_sock, pktbuf, bread, now );
+                    if (bread > 0) {
+												process_udp( sss, (struct sockaddr*) &udp6_sender_sock, udp6_sender_len,
+																			pktbuf, bread, now );
+                    }
                 }
+                idx++;
             }
 
-            if (FD_ISSET(sss->mgmt_sock, &socket_mask))
-            {
-                bread = recvfrom( sss->mgmt_sock, pktbuf, N2N_SN_PKTBUF_SIZE, 0/*flags*/,
-				  (struct sockaddr *)&sender_sock, &i);
+            if (fds[idx].revents & POLLIN) {
+                struct sockaddr_storage mgmt_sender_sock;
+                socklen_t mgmt_sender_len = sizeof(mgmt_sender_sock);
 
-                if ( bread <= 0 )
-                {
-#ifdef _WIN32
-                    DWORD err = WSAGetLastError();
-                    W32_ERROR(err, error);
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%ls)", bread, err, error );
-                    W32_ERROR_FREE(error);
-#else
-                    traceEvent( TRACE_ERROR, "recvfrom() failed %d errno %d (%s)", bread, errno, strerror(errno) );
-#endif
-                    keep_running=0;
-                    break;
+                bread = recvfrom(sss->mgmt_sock, pktbuf, N2N_SN_PKTBUF_SIZE, 0,
+                               (struct sockaddr *)&mgmt_sender_sock, &mgmt_sender_len);
+
+                if (bread > 0) {
+                    process_mgmt(sss, (struct sockaddr*)&mgmt_sender_sock,
+                               mgmt_sender_len, pktbuf, bread, now);
                 }
-
-                /* We have a datagram to process */
-                process_mgmt( sss, (struct sockaddr*) &sender_sock, i, pktbuf, bread, now );
             }
         }
         else
@@ -999,10 +976,8 @@ static int run_loop( n2n_sn_t * sss )
         }
 
         purge_expired_registrations( &(sss->edges) );
-
-    } /* while */
+    }
 
     deinit_sn( sss );
-
     return 0;
 }

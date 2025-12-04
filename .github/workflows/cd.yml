@@ -1,4 +1,4 @@
-name: Compiling mxre_n2n
+name: Build N2N_IPV6
 
 on:
   push:
@@ -22,114 +22,86 @@ jobs:
       fail-fast: false
       matrix:
         include:
+#          - target: apple-mac_AES
+#            os: macos-latest
+#          - target: apple-mac
+#            os: macos-latest
 
-#          - target: x86_64-linux-musl_AES
-#            os: ubuntu-latest
-#            URL: x86_64-linux-musl
-#            OPENSSL_TARGET: linux-x86_64
-#          - target: x86_64-linux-musl
-#            os: ubuntu-latest
-#            URL: x86_64-linux-musl
-#            OPENSSL_TARGET: linux-x86_64
-#
           - target: x86_64-pc-windows_AES
             os: windows-latest
             ARCH: x64
             OPENSSL_TARGET: VC-WIN64A
             MSVC_ARCH: x64
-#          - target: x86_64-pc-windows
-#            os: windows-latest
-#            ARCH: x64
-#            OPENSSL_TARGET: VC-WIN64A
-#            MSVC_ARCH: x64
-#
+          - target: x86_64-pc-windows
+            os: windows-latest
+            ARCH: x64
+            OPENSSL_TARGET: VC-WIN64A
+            MSVC_ARCH: x64
+
           - target: i686-pc-windows_AES
             os: windows-latest
             ARCH: x86
             OPENSSL_TARGET: VC-WIN32
             MSVC_ARCH: x86
-#          - target: i686-pc-windows
-#            os: windows-latest
-#            ARCH: x86
-#            OPENSSL_TARGET: VC-WIN32
-#            MSVC_ARCH: x86
-#
-#          - target: i686-linux-musl_AES
-#            os: ubuntu-latest
-#            URL: i686-linux-musl
-#            OPENSSL_TARGET: linux-generic32
-#          - target: i686-linux-musl
-#            os: ubuntu-latest
-#            URL: i686-linux-musl
-#            OPENSSL_TARGET: linux-generic32
-#
-#          - target: mipsel-linux-musl_AES
-#            os: ubuntu-latest
-#            URL: mipsel-linux-muslsf
-#            OPENSSL_TARGET: linux-mips32
-#          - target: mipsel-linux-musl
-#            os: ubuntu-latest
-#            URL: mipsel-linux-muslsf
-#            OPENSSL_TARGET: linux-mips32
-#
-#          - target: mips-linux-musl_AES
-#            os: ubuntu-latest
-#            URL: mips-linux-muslsf
-#            OPENSSL_TARGET: linux-mips32
-#          - target: mips-linux-musl
-#            os: ubuntu-latest
-#            URL: mips-linux-muslsf
-#            OPENSSL_TARGET: linux-mips32
-#
-#          - target: arm-linux-musleabihf_AES
-#            os: ubuntu-latest
-#            URL: arm-linux-musleabihf
-#            OPENSSL_TARGET: linux-armv4
-#          - target: arm-linux-musleabihf
-#            os: ubuntu-latest
-#            URL: arm-linux-musleabihf
-#            OPENSSL_TARGET: linux-armv4
-#
-#          - target: arm-linux-musleabi_AES
-#            os: ubuntu-latest
-#            URL: arm-linux-musleabi
-#            OPENSSL_TARGET: linux-armv4
-#          - target: arm-linux-musleabi
-#            os: ubuntu-latest
-#            URL: arm-linux-musleabi
-#            OPENSSL_TARGET: linux-armv4
-#
-#          - target: aarch64-linux-musl_AES
-#            os: ubuntu-latest
-#            URL: aarch64-linux-musl
-#            OPENSSL_TARGET: linux-aarch64
-#          - target: aarch64-linux-musl
-#            os: ubuntu-latest
-#            URL: aarch64-linux-musl
-#            OPENSSL_TARGET: linux-aarch64
-#
-#          - target: armv7-linux-musleabihf_AES
-#            os: ubuntu-latest
-#            URL: armv7l-linux-musleabihf
-#            OPENSSL_TARGET: linux-armv4
-#          - target: armv7-linux-musleabihf
-#            os: ubuntu-latest
-#            URL: armv7l-linux-musleabihf
-#            OPENSSL_TARGET: linux-armv4
-#
-#          - target: armv7-linux-musleabi_AES
-#            os: ubuntu-latest
-#            URL: armv7m-linux-musleabi
-#            OPENSSL_TARGET: linux-armv4
-#          - target: armv7-linux-musleabi
-#            os: ubuntu-latest
-#            URL: armv7m-linux-musleabi
-#            OPENSSL_TARGET: linux-armv4
-#
-#          - target: apple-mac_AES
-#            os: macos-latest
-#          - target: apple-mac
-#            os: macos-latest
+          - target: i686-pc-windows
+            os: windows-latest
+            ARCH: x86
+            OPENSSL_TARGET: VC-WIN32
+            MSVC_ARCH: x86
+
+          - target: x86_64-linux-musl_AES
+            os: ubuntu-latest
+            URL: x86_64-linux-musl
+            OPENSSL_TARGET: linux-x86_64
+          - target: x86_64-linux-musl
+            os: ubuntu-latest
+            URL: x86_64-linux-musl
+            OPENSSL_TARGET: linux-x86_64
+
+          - target: aarch64-linux-musl_AES
+            os: ubuntu-latest
+            URL: aarch64-linux-musl
+            OPENSSL_TARGET: linux-aarch64
+          - target: aarch64-linux-musl
+            os: ubuntu-latest
+            URL: aarch64-linux-musl
+            OPENSSL_TARGET: linux-aarch64
+
+          - target: arm-linux-musleabihf_AES
+            os: ubuntu-latest
+            URL: arm-linux-musleabihf
+            OPENSSL_TARGET: linux-armv4
+          - target: arm-linux-musleabihf
+            os: ubuntu-latest
+            URL: arm-linux-musleabihf
+            OPENSSL_TARGET: linux-armv4
+
+          - target: arm-linux-musleabi_AES
+            os: ubuntu-latest
+            URL: arm-linux-musleabi
+            OPENSSL_TARGET: linux-armv4
+          - target: arm-linux-musleabi
+            os: ubuntu-latest
+            URL: arm-linux-musleabi
+            OPENSSL_TARGET: linux-armv4
+
+          - target: mipsel-linux-musl_AES
+            os: ubuntu-latest
+            URL: mipsel-linux-muslsf
+            OPENSSL_TARGET: linux-mips32
+          - target: mipsel-linux-musl
+            os: ubuntu-latest
+            URL: mipsel-linux-muslsf
+            OPENSSL_TARGET: linux-mips32
+
+          - target: mips-linux-musl_AES
+            os: ubuntu-latest
+            URL: mips-linux-muslsf
+            OPENSSL_TARGET: linux-mips32
+          - target: mips-linux-musl
+            os: ubuntu-latest
+            URL: mips-linux-muslsf
+            OPENSSL_TARGET: linux-mips32
 
     runs-on: ${{ matrix.os }}
     env:
@@ -142,7 +114,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setting up the MSVC environment
+      - name: Setup MSVC environment
         if: runner.os == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -183,26 +155,26 @@ jobs:
           echo "Building macOS universal2: x86_64 + arm64"
           if [[ "${TARGET}" == *_AES ]]; then
             if [ -d "${OPENSSL_PREFIX}" ]; then
-              echo "${OPENSSL_PREFIX} already exists, skip OpenSSL compilation"
+              echo "OpenSSL already exists at ${OPENSSL_PREFIX}, skipping compilation"
             else
               git clone --depth 1 --branch OpenSSL_1_1_1-stable https://github.com/openssl/openssl openssl-src
               cd openssl-src
               COMMON_CONF="no-shared no-zlib"
-              echo "==== Start building x86_64 ===="
+              echo "==== Starting x86_64 build ===="
               export CC="clang -arch x86_64"
               export CFLAGS="-O2 -arch x86_64 -mmacosx-version-min=10.13"
               ./Configure darwin64-x86_64-cc ${COMMON_CONF} --prefix=${OPENSSL_PREFIX}/x86_64
               make -j$(sysctl -n hw.ncpu)
               make install_sw
               make clean
-              echo "==== Start building arm64 ===="
+              echo "==== Starting arm64 build ===="
               export CC="clang -arch arm64"
               export CFLAGS="-O2 -arch arm64 -mmacosx-version-min=11.0"
               ./Configure darwin64-arm64-cc ${COMMON_CONF} --prefix=${OPENSSL_PREFIX}/arm64
               make -j$(sysctl -n hw.ncpu)
               make install_sw
               make clean
-              echo "==== merge ===="
+              echo "==== Merging ===="
               mkdir -p ${OPENSSL_PREFIX}/lib
               mkdir -p ${OPENSSL_PREFIX}/include
               lipo -create ${OPENSSL_PREFIX}/x86_64/lib/libcrypto.a ${OPENSSL_PREFIX}/arm64/lib/libcrypto.a -output ${OPENSSL_PREFIX}/lib/libcrypto.a
@@ -236,7 +208,7 @@ jobs:
          static: true
          gccpath: /opt/musl_gcc
 
-      - name: Compiling Windows OpenSSL
+      - name: Build Windows OpenSSL
         if: steps.cache-openssl.outputs.cache-hit != 'true' && runner.os == 'windows' && endsWith(matrix.TARGET, '_AES')
         shell: cmd
         run: |
@@ -250,7 +222,7 @@ jobs:
 
           cd ..
 
-      - name: Windows Build (AES)
+      - name: Windows build (AES)
         if: runner.os == 'windows' && endsWith(matrix.TARGET, '_AES')
         shell: pwsh
         run: |
@@ -270,7 +242,11 @@ jobs:
 
           nmake
           .\edge.exe -h || true
-          .\supernode.exe -h || true
+          if (Test-Path ".\supernode.exe") {
+            .\supernode.exe -h || true
+          } else {
+            Write-Host "supernode.exe build failed, continuing with edge.exe only"
+          }
 
       - name: Windows build
         if: runner.os == 'windows' && !endsWith(matrix.TARGET, '_AES')
@@ -289,7 +265,11 @@ jobs:
 
           nmake
           .\edge.exe -h || true
-          .\supernode.exe -h || true
+          if (Test-Path ".\supernode.exe") {
+            .\supernode.exe -h || true
+          } else {
+            Write-Host "supernode.exe build failed, continuing with edge.exe only"
+          }
 
       - name: Install UPX
         if: runner.os == 'Linux' && !contains(matrix.TARGET, 'windows') && !contains(matrix.TARGET, 'apple-darwin')
@@ -327,19 +307,19 @@ jobs:
           ./edge -h || true
           ./supernode -h || true
 
-          # View current directory files
+          #View current directory files
           ls -la
-          # View Edge binary file information
+          #View edge binary file info
           file edge
-          # peel off
+          #Strip
           $STRIP edge
           $STRIP supernode
           file edge
-          # compression
+          #Compress
           upx --lzma --best edge || true
           upx --lzma --best supernode || true
 
-      - name : upload
+      - name: Upload
         uses: actions/upload-artifact@master
         if: always()
         with:

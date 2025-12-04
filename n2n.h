@@ -142,10 +142,6 @@ typedef struct ether_hdr ether_hdr_t;
 
 #include "n2n_wire.h"
 
-#if defined(N2N_HAS_CAPABILITIES)
-#include <sys/capability.h>
-#endif
-
 typedef struct route {
     int family;
     uint8_t dest[IPV6_SIZE];
